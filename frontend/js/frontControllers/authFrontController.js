@@ -13,7 +13,8 @@ if (loginForm)
 
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
-
+        
+        
         try 
         {
             // Llamada al endpoint de login a través de nuestro service
@@ -49,6 +50,13 @@ if (registerForm)
         e.preventDefault();
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
+
+       if (!password || password.length < 6)
+        {
+          showModal('Error de Registro', 'La contraseña es demasiado corta.');
+          return;
+        }
+
 
         try 
         {
