@@ -61,3 +61,34 @@ testUtils.createTestButton("Test Subir Sample (Simulado)", async (btn) => {
     testUtils.log(data);
     if (response.ok) testUtils.setSuccess(btn);
 });
+
+testUtils.createTestButton("Test Subit Sample - BPM Inválido", async (btn) => {
+    
+    // 1. Asegurar y guardar una sesión válida
+    await okLogin();
+    const token = localStorage.getItem('test_token');
+        
+    // 2. Creamos un FormData con BPM inválido
+    const formData = new FormData();
+    formData.append('display_name', 'Test BPM Invalido');
+    formData.append('category', 'Drums');
+    formData.append('bpm', '-15');
+
+    const blob = new Blob(["Simulated Audio Content"], { type: 'audio/wav' });
+    formData.append('audioFile', blob, 'test.wav');
+
+    // 3. Intentamos subir el sample con BPM inválido
+    const response = await fetch('/api/samples/upload', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData
+    });
+
+    const data = await response.json();
+    testUtils.log(data);
+
+    // 4. El servidor debería rechazarlo con 400
+    if (response.status === 400) {
+        testUtils.setSuccess(btn);
+    }
+})
