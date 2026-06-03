@@ -73,6 +73,21 @@ app.use('/api/auth', authRoutes);
 app.use('/api/samples', sampleRoutes);
 app.use('/api/admin', adminRoutes);
 
+app.use((err, req, res, next) => {
+
+    if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(413).json({
+            message: "El archivo supera el límite de tamaño permitido"
+        });
+    }
+
+    console.error(err.stack);
+
+    res.status(500).json({
+        message: "Error en el servidor",
+        error: err.message
+    });
+});
 // --- Registrar rutas de Navegación del Frontend ---
 // Se coloca al final para que actúe como capturador de rutas de UI
 
@@ -90,10 +105,6 @@ else
 }
 
 // --- Manejo de errores global ---
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({ message: "Error en el servidor", error: err.message });
-});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

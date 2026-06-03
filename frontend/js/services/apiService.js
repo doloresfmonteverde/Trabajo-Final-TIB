@@ -25,7 +25,15 @@ const apiService = {
         }
 
         const response = await fetch(`${API_URL}${endpoint}`, config);
-        const result = await response.json();
+        let result;
+
+        try {
+          result = await response.json();
+         } catch (e) {
+            result = { 
+            message: "El archivo supera el límite de tamaño permitido" 
+         };
+}
 
         // Si el token expiró (401), forzamos logout automático
         if (response.status === 401) authHelper.logout();
