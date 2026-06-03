@@ -92,3 +92,39 @@ testUtils.createTestButton("Test Subit Sample - BPM Inválido", async (btn) => {
         testUtils.setSuccess(btn);
     }
 })
+
+/**
+ * Test: POST /api/samples/upload - Archivo demasiado pesado
+ */
+testUtils.createTestButton("Test Subir Sample - Archivo muy grande", async (btn) => {
+    
+    await okLogin();
+    const token = localStorage.getItem('test_token');
+
+    const formData = new FormData();
+    formData.append('display_name', 'Test Archivo Grande');
+    formData.append('category', 'Drums');
+    formData.append('bpm', '120');
+
+    // Creamos un archivo falso de más de 5 MB
+    const contenidoGrande = new Uint8Array(6 * 1024 * 1024);
+    const blob = new Blob([contenidoGrande], { type: 'audio/mpeg' });
+
+    formData.append('audioFile', blob, 'archivo_grande.mp3');
+
+    const response = await fetch('/api/samples/upload', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData
+    });
+
+    const data = await response.json();
+    testUtils.log(data);
+
+    if (
+        response.status === 413 &&
+        data.message === "El archivo supera el límite de tamaño permitido"
+    ) {
+        testUtils.setSuccess(btn);
+    }
+});
