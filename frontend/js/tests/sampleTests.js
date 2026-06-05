@@ -94,37 +94,25 @@ testUtils.createTestButton("Test Subit Sample - BPM Inválido", async (btn) => {
 })
 
 /**
- * Test: POST /api/samples/upload - Archivo demasiado pesado
+ * Test de borrado fantasma
+ * Mando un DELETE con un ID que no existe y espero un 404
  */
-testUtils.createTestButton("Test Subir Sample - Archivo muy grande", async (btn) => {
-    
+testUtils.createTestButton("Test Borrado Fantasma (ID inexistente)", async (btn) => {
+    // me logueo primero para tener el token
     await okLogin();
     const token = localStorage.getItem('test_token');
 
-    const formData = new FormData();
-    formData.append('display_name', 'Test Archivo Grande');
-    formData.append('category', 'Drums');
-    formData.append('bpm', '120');
-
-    // Creamos un archivo falso de más de 5 MB
-    const contenidoGrande = new Uint8Array(6 * 1024 * 1024);
-    const blob = new Blob([contenidoGrande], { type: 'audio/mpeg' });
-
-    formData.append('audioFile', blob, 'archivo_grande.mp3');
-
-    const response = await fetch('/api/samples/upload', {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` },
-        body: formData
+    // mando un delete con un id que no existe
+    const response = await fetch('/api/samples/99999', {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
     });
 
     const data = await response.json();
     testUtils.log(data);
 
-    if (
-        response.status === 413 &&
-        data.message === "El archivo supera el límite de tamaño permitido"
-    ) {
+    // si me devuelve 404 el test pasa
+    if (response.status === 404) {
         testUtils.setSuccess(btn);
     }
 });
